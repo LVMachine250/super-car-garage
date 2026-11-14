@@ -363,7 +363,9 @@ function visibleCars() {
     new: (a, b) => (b.year ?? -1) - (a.year ?? -1) || byName(a, b),
   };
   list.sort(sorters[state.sort]);
-  return [...list.filter(isNew), ...list.filter((c) => !isNew(c))];
+  // Newest additions first (by date, then the order they were added), then everything else.
+  const fresh = list.filter(isNew).sort((a, b) => b.added.localeCompare(a.added) || (b.addedOrder || 0) - (a.addedOrder || 0));
+  return [...fresh, ...list.filter((c) => !isNew(c))];
 }
 
 function renderChips() {
@@ -437,8 +439,21 @@ function isNew(c) {
 // Cars added by hand, on top of the Wikidata list. Give each one an "added" date (YYYY-MM-DD).
 const EXTRA_CARS = [
   {
+    id: "lamborghini-aventador-svj",
+    added: "2026-11-14",
+    addedOrder: 2,
+    name: "Lamborghini Aventador SVJ",
+    brand: "Lamborghini",
+    img: "https://commons.wikimedia.org/wiki/Special:FilePath/Lamborghini_Aventador_SVJ_2019.jpg",
+    year: 2018,
+    country: "Italy",
+    wiki: "Lamborghini_Aventador",
+    summary: "The Aventador SVJ (Super Veloce Jota) is the most extreme version of Lamborghini's V12 Aventador, unveiled in 2018 and built until 2021, with just 900 coupes made. Its 6.5-litre V12 makes 770 PS (759 hp), taking it from 0 to 100 km/h in 2.8 seconds and on to more than 350 km/h (217 mph). In 2018 an SVJ set a production-car lap record of 6:44.97 at the Nürburgring Nordschleife, helped by Lamborghini's ALA active aerodynamics and a huge carbon fibre rear wing.",
+  },
+  {
     id: "leighton-vans-lvf",
     added: "2026-11-14",
+    addedOrder: 1,
     name: "Leighton Vans LV-RF",
     brand: "Leighton Vans",
     img: "https://commons.wikimedia.org/wiki/Special:FilePath/Ford_Transit_Custom_Leighton.jpg",
