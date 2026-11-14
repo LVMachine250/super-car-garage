@@ -427,7 +427,7 @@ function toggleFav(id) {
 }
 
 // Cars added by hand show at the top with a NEW badge for this many days.
-const NEW_FOR_DAYS = 30;
+const NEW_FOR_DAYS = 7;
 function isNew(c) {
   if (!c.added) return false;
   const days = (Date.now() - new Date(c.added + "T00:00:00").getTime()) / 864e5;
