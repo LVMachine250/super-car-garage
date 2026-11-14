@@ -439,6 +439,20 @@ function isNew(c) {
 // Cars added by hand, on top of the Wikidata list. Give each one an "added" date (YYYY-MM-DD).
 const EXTRA_CARS = [
   {
+    id: "leighton-vans-vw-transporter-lv-r",
+    added: "2026-11-14",
+    addedOrder: 3,
+    name: "Leighton Vans VW Transporter LV-R",
+    brand: "Leighton Vans",
+    img: "images/leighton-vw-transporter-lv-r.jpg",
+    photoCredit: "Photo: Leighton Vans, used with permission",
+    year: null,
+    country: "United Kingdom",
+    wiki: null,
+    summary: "The LV-R is Leighton Vans' full sporty makeover for the Volkswagen Transporter, built in Rotherham, England, by an official Volkswagen Registered Converter. Depending on the van it adds an LV-R front bumper, side skirts, a rear spoiler and rear bumper, 20-inch LV alloy wheels, LED headlights and a leather interior, with extras like EBC x Leighton big brake kits. For the newest T7 Transporter, Leighton also offers the LV-S pack.",
+    website: { url: "https://www.leightonvans.co.uk/", label: "Visit Leighton Vans" },
+  },
+  {
     id: "lamborghini-aventador-svj",
     added: "2026-11-14",
     addedOrder: 2,
@@ -492,7 +506,7 @@ async function openCar(id) {
         ${c.website ? `<a class="ghost" href="${esc(c.website.url)}" target="_blank" rel="noopener">${esc(c.website.label)}</a>` : ""}
         <a class="ghost" href="https://revolut.me/z_ss_si76" target="_blank" rel="noopener">☕ Tip the maker</a>
       </div>
-      <div class="credit">Photo: <a href="${esc(commonsPage(c.img))}" target="_blank" rel="noopener">Wikimedia Commons</a> (see page for photographer and license)</div>
+      <div class="credit">${c.photoCredit ? esc(c.photoCredit) : `Photo: <a href="${esc(commonsPage(c.img))}" target="_blank" rel="noopener">Wikimedia Commons</a> (see page for photographer and license)`}</div>
     </div>
   </div>`;
   d.showModal();
