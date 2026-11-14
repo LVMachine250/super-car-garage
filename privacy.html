@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Super Car Garage Privacy</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,800&family=Barlow:wght@400;600&display=swap">
+<style>
+/* Layout: single readable column; yellow stripe header echoing the app icon. */
+:root {
+  --bg: #f4f5f7;
+  --ink: #14171b;
+  --muted: #555d68;
+  --line: #d7dbe0;
+  --accent: #f2b705;
+  --on-accent: #14171b;
+  --display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #111317; --ink: #eef0f3; --muted: #9aa3ae; --line: #2c3138; --accent: #f5c02a; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #111317; --ink: #eef0f3; --muted: #9aa3ae; --line: #2c3138; --accent: #f5c02a; color-scheme: dark; }
+
+body {
+  background: var(--bg); color: var(--ink); font: 17px/1.6 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 48px;
+}
+main { max-width: 65ch; margin: 0 auto; display: grid; gap: 28px; }
+h1 { margin: 0; font: italic 800 clamp(2.2rem, 7vw, 3.2rem)/.95 var(--display); text-transform: uppercase; text-wrap: balance; }
+h1 span { background: var(--accent); color: var(--on-accent); padding: 0 .15em; }
+h2 { margin: 0 0 6px; font: italic 800 1.6rem/1.1 var(--display); text-transform: uppercase; }
+h3 { margin: 16px 0 4px; font-size: 1rem; }
+p, ul { margin: 0 0 10px; }
+section { border-top: 1px solid var(--line); padding-top: 20px; }
+.muted { color: var(--muted); }
+a { color: inherit; text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.contact { font-weight: 600; user-select: all; }
+</style>
+
+</head>
+<body>
+<main>
+  <header>
+    <h1>Super Car <span>Garage</span></h1>
+    <p class="muted">Privacy policy and support · Last updated 14 November 2026</p>
+  </header>
+
+  <section id="privacy">
+    <h2>Privacy policy</h2>
+    <p><strong>Super Car Garage doesn't collect, store or share any personal data.</strong> There are no accounts, ads, analytics or tracking.</p>
+
+    <h3>What stays on your device</h3>
+    <p>The cars you add to My Garage, and a copy of the car list so the app opens faster, are saved only on your iPhone or iPad. They are never sent to us. Deleting the app deletes them.</p>
+
+    <h3>Services the app connects to</h3>
+    <p>To show cars, the app downloads information and photos from these Wikimedia Foundation services:</p>
+    <ul>
+      <li>Wikidata (car list and facts)</li>
+      <li>Wikipedia (car stories)</li>
+      <li>Wikimedia Commons (photos)</li>
+    </ul>
+    <p>Like any website, these services receive ordinary request details such as your IP address. The app sends them nothing else about you. Their handling of that information is covered by the <a href="https://foundation.wikimedia.org/wiki/Policy:Privacy_policy" target="_blank" rel="noopener">Wikimedia Foundation Privacy Policy</a>.</p>
+
+    <h3>Children</h3>
+    <p>The app is suitable for all ages and collects no information from anyone, including children.</p>
+
+    <h3>Your rights</h3>
+    <p>Because we hold no personal data about you, there is nothing for us to access, correct or delete. If you have questions about privacy, including under UK GDPR, contact us using the details below.</p>
+
+    <h3>Changes</h3>
+    <p>If this policy changes, we'll update this page and the date at the top.</p>
+  </section>
+
+  <section id="support">
+    <h2>Support</h2>
+    <p>Questions, problems, or a car that's missing or wrong? Get in touch:</p>
+    <p class="contact">supercargarage.app@gmail.com</p>
+    <p class="muted">Super Car Garage is made by Car Guy. Car information comes from Wikidata and Wikipedia, and photos from Wikimedia Commons, with credit to each photographer in the app. Super Car Garage is not affiliated with or endorsed by any car maker.</p>
+  </section>
+</main>
+
+<p style="text-align:center"><a href="./">← Back to Super Car Garage</a></p>
+</body>
+</html>

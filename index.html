@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Super Car Garage</title>
+<meta name="description" content="Browse hundreds of sports cars, from 1950s classics to today's hypercars, and build your dream garage.">
+<meta name="theme-color" content="#111317">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Super Car Garage">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,600;1,800&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: sticky pit-wall header with search + brand chips, then a photo grid; tapping a car opens a spec sheet. */
+:root {
+  --bg: #eceef1;
+  --surface: #ffffff;
+  --ink: #14171b;
+  --muted: #5d6570;
+  --line: #d5d9df;
+  --accent: #f2b705;      /* racing yellow */
+  --on-accent: #14171b;
+  --chip: #e1e4e9;
+  --shadow: 0 1px 2px rgb(20 23 27 / .06), 0 6px 18px rgb(20 23 27 / .06);
+  --display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111317; --surface: #1b1e23; --ink: #eef0f3; --muted: #9aa3ae; --line: #2c3138;
+    --accent: #f5c02a; --on-accent: #14171b; --chip: #252a31;
+    --shadow: 0 1px 2px rgb(0 0 0 / .4), 0 8px 24px rgb(0 0 0 / .3);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111317; --surface: #1b1e23; --ink: #eef0f3; --muted: #9aa3ae; --line: #2c3138;
+  --accent: #f5c02a; --on-accent: #14171b; --chip: #252a31;
+  --shadow: 0 1px 2px rgb(0 0 0 / .4), 0 8px 24px rgb(0 0 0 / .3);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 16px/1.5 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 40px;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--bg);
+}
+img { max-width: 100%; display: block; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.wrap { max-width: 1200px; margin: 0 auto; }
+
+header {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--bg);
+  padding-block: 18px 12px;
+  display: grid; gap: 12px;
+}
+.title-row { display: flex; align-items: end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+h1 {
+  margin: 0; font: italic 800 clamp(2rem, 6vw, 3rem)/.9 var(--display);
+  letter-spacing: -.01em; text-transform: uppercase; text-wrap: balance;
+}
+h1 span { background: var(--accent); color: var(--on-accent); padding: 0 .18em; margin-left: .05em; }
+.count { font: 500 .78rem var(--mono); color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+
+.tabs { display: flex; gap: 4px; background: var(--chip); padding: 4px; border-radius: 10px; }
+.tab {
+  border: 0; background: transparent; padding: 6px 14px; border-radius: 7px; cursor: pointer;
+  font-weight: 600; color: var(--muted);
+}
+.tab[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+
+.controls { display: flex; gap: 8px; }
+.search {
+  flex: 1; min-width: 0; padding: 10px 14px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--surface);
+}
+.sort { padding: 10px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); }
+
+.chips {
+  display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px;
+  scrollbar-width: thin; -webkit-overflow-scrolling: touch;
+}
+.chip {
+  flex: none; border: 1px solid transparent; background: var(--chip); padding: 5px 12px;
+  border-radius: 999px; cursor: pointer; font-size: .9rem; font-weight: 500; white-space: nowrap;
+}
+.chip small { font-family: var(--mono); color: var(--muted); margin-left: 4px; font-size: .72rem; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.chip[aria-pressed="true"] small { color: inherit; opacity: .7; }
+
+.grid {
+  display: grid; gap: 14px; margin-top: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr));
+}
+.card {
+  all: unset; cursor: pointer; display: flex; flex-direction: column;
+  background: var(--surface); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow);
+  transition: transform .15s ease;
+}
+.card:hover { transform: translateY(-2px); }
+.card:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.photo { aspect-ratio: 16 / 10; background: var(--chip); position: relative; overflow: hidden; }
+.photo img { width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 1; background: var(--chip); }
+.photo .none {
+  position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted);
+  font: italic 600 1rem var(--display); text-transform: uppercase;
+}
+.fav-badge {
+  position: absolute; top: 8px; right: 8px; background: var(--accent); color: var(--on-accent);
+  border-radius: 999px; width: 26px; height: 26px; display: grid; place-items: center; font-size: 14px;
+}
+.meta { padding: 10px 12px 12px; display: grid; gap: 2px; min-width: 0; }
+.name { font: italic 700 1.25rem/1.1 var(--display); text-transform: uppercase; overflow-wrap: anywhere; }
+.sub { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: .88rem; }
+.plate {
+  font: 500 .72rem var(--mono); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px;
+  color: var(--ink); align-self: center;
+}
+
+.status { text-align: center; color: var(--muted); padding: 60px 0; display: grid; gap: 12px; justify-items: center; }
+.status button, .primary {
+  border: 0; background: var(--accent); color: var(--on-accent); font-weight: 600;
+  padding: 10px 18px; border-radius: 10px; cursor: pointer;
+}
+.skeleton { background: var(--surface); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
+.skeleton .photo { animation: pulse 1.2s ease-in-out infinite alternate; }
+.skeleton .meta div { height: 14px; background: var(--chip); border-radius: 4px; }
+@keyframes pulse { from { opacity: .55 } to { opacity: 1 } }
+
+dialog {
+  border: 0; padding: 0; border-radius: 16px; background: var(--surface); color: var(--ink);
+  width: min(720px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); box-shadow: var(--shadow);
+}
+dialog::backdrop { background: rgb(10 12 15 / .6); }
+.sheet { display: grid; }
+.sheet .photo { aspect-ratio: 16 / 9; }
+.sheet-body { padding: 18px 20px 22px; display: grid; gap: 14px; }
+.sheet h2 { margin: 0; font: italic 800 2rem/1 var(--display); text-transform: uppercase; text-wrap: balance; }
+.specs { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin: 0; }
+.specs div { background: var(--chip); border-radius: 8px; padding: 8px 10px; }
+.specs dt { font: 500 .68rem var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.specs dd { margin: 0; font-weight: 600; }
+.summary { margin: 0; max-width: 65ch; }
+.summary.loading { color: var(--muted); }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.ghost {
+  border: 1px solid var(--line); background: transparent; padding: 9px 16px; border-radius: 10px;
+  cursor: pointer; font-weight: 600; text-decoration: none; color: var(--ink);
+}
+.close {
+  position: absolute; top: 10px; right: 10px; z-index: 2; width: 36px; height: 36px; border-radius: 50%;
+  border: 0; background: rgb(10 12 15 / .65); color: #fff; font-size: 20px; cursor: pointer;
+}
+.credit { font-size: .8rem; color: var(--muted); }
+.credit a { color: inherit; }
+
+footer { margin-top: 32px; font-size: .82rem; color: var(--muted); text-align: center; }
+footer a { color: inherit; }
+
+@media (max-width: 480px) {
+  .grid { gap: 10px; }
+  .name { font-size: 1.05rem; }
+  .sub { font-size: .8rem; }
+  .meta { padding: 8px 10px 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="title-row">
+      <h1>Super Car <span>Garage</span></h1>
+      <div class="tabs" role="tablist" aria-label="View">
+        <button class="tab" role="tab" id="tab-all" aria-selected="true">All cars</button>
+        <button class="tab" role="tab" id="tab-garage" aria-selected="false">My Garage</button>
+      </div>
+    </div>
+    <div class="controls">
+      <input class="search" id="search" type="search" placeholder="Search 911, GT-R, Countach…" aria-label="Search cars">
+      <select class="sort" id="sort" aria-label="Sort cars">
+        <option value="az">A–Z</option>
+        <option value="brand">By brand</option>
+        <option value="old">Oldest first</option>
+        <option value="new">Newest first</option>
+      </select>
+    </div>
+    <div class="chips" id="chips" aria-label="Filter by brand"></div>
+    <div class="count" id="count">Loading cars…</div>
+  </header>
+
+  <main id="main"></main>
+
+  <footer>
+    Car info from <a href="https://www.wikidata.org" target="_blank" rel="noopener">Wikidata</a> and
+    <a href="https://en.wikipedia.org" target="_blank" rel="noopener">Wikipedia</a>.
+    Photos from <a href="https://commons.wikimedia.org" target="_blank" rel="noopener">Wikimedia Commons</a> by their many photographers.<br>
+    Not affiliated with or endorsed by any car maker. Made by Car Guy · <a href="privacy.html">Privacy &amp; support</a>
+  </footer>
+</div>
+
+<dialog id="dialog" aria-labelledby="d-name"></dialog>
+
+<script>
+const QUERY = `
+SELECT ?car (SAMPLE(?label) AS ?name) (SAMPLE(?image) AS ?img)
+       (GROUP_CONCAT(DISTINCT ?makerName; separator="|") AS ?makers)
+       (MIN(?y) AS ?year) (SAMPLE(?countryName) AS ?country) (SAMPLE(?article) AS ?wiki) WHERE {
+  ?car (wdt:P31|wdt:P279)/wdt:P279* wd:Q274586 .
+  ?car wdt:P18 ?image ; rdfs:label ?label . FILTER(LANG(?label) = "en")
+  OPTIONAL { ?car wdt:P176 ?maker . ?maker rdfs:label ?makerName . FILTER(LANG(?makerName) = "en") }
+  OPTIONAL { ?car wdt:P571|wdt:P5204|wdt:P580|wdt:P729|wdt:P2754|wdt:P577 ?d . BIND(YEAR(?d) AS ?y) }
+  OPTIONAL { ?car wdt:P495 ?c . ?c rdfs:label ?countryName . FILTER(LANG(?countryName) = "en") }
+  OPTIONAL { ?article schema:about ?car ; schema:isPartOf <https://en.wikipedia.org/> . }
+}
+GROUP BY ?car`;
+
+const CACHE_KEY = "supercar-garage.cars.v2";
+const FAV_KEY = "supercar-garage.favs.v1";
+const CACHE_DAYS = 7;
+
+const BRAND_ALIASES = {
+  "Aston Martin Lagonda": "Aston Martin",
+  "Mercedes-Benz Group": "Mercedes-Benz",
+  "Daimler-Benz": "Mercedes-Benz",
+  "Bayerische Motoren Werke": "BMW",
+  "Automobili Lamborghini": "Lamborghini",
+  "Bugatti Automobiles": "Bugatti",
+  "Bugatti Rimac": "Bugatti",
+  "Nissan Motor": "Nissan",
+  "Toyota Motor Corporation": "Toyota",
+  "Honda Motor Company": "Honda",
+  "Mazda Motor Corporation": "Mazda",
+};
+
+const store = {
+  get(key) { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } },
+  set(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} },
+};
+
+const state = {
+  cars: [],
+  brand: "All",
+  q: "",
+  sort: "az",
+  view: "all",
+  favs: new Set(store.get(FAV_KEY) || []),
+};
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function cleanBrand(name) {
+  if (BRAND_ALIASES[name]) return BRAND_ALIASES[name];
+  return name
+    .replace(/\s+(AG|S\.p\.A\.|SpA|S\.A\.|Automobiles|Automobili|Automotive|Cars|Group|Motor Company|Motor Corporation|Motors|Limited|Ltd\.?|Inc\.?|GmbH|plc)$/i, "")
+    .trim();
+}
+
+function thumb(url, width) {
+  return url.replace(/^http:/, "https:") + "?width=" + width;
+}
+
+function commonsPage(url) {
+  const file = url.split("/Special:FilePath/")[1];
+  return file ? "https://commons.wikimedia.org/wiki/File:" + file : "https://commons.wikimedia.org";
+}
+
+function normalize(rows) {
+  const raw = rows.map((b) => {
+    const makers = (b.makers?.value || "").split("|").filter(Boolean).map(cleanBrand);
+    return {
+      id: b.car.value.split("/").pop(),
+      name: b.name.value,
+      img: b.img.value,
+      makers,
+      year: b.year ? Number(b.year.value) : null,
+      country: b.country?.value || null,
+      wiki: b.wiki ? decodeURIComponent(b.wiki.value.split("/wiki/")[1]) : null,
+    };
+  }).filter((c) => !/^Q\d+$/.test(c.name));
+
+  const known = new Set(raw.flatMap((c) => c.makers));
+  const startsWith = (name, brand) => name.toLowerCase().startsWith(brand.toLowerCase());
+  for (const c of raw) {
+    c.brand =
+      c.makers.find((m) => startsWith(c.name, m)) ||
+      [...known].find((m) => m.length > 2 && startsWith(c.name, m)) ||
+      c.makers[0] ||
+      [...known].filter((m) => m.length > 2 && new RegExp("\\b" + m.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b", "i").test(c.name))
+        .sort((a, b) => b.length - a.length)[0] ||
+      "Other";
+    // Ignore obviously wrong years (e.g. a company founding date).
+    if (c.year && (c.year < 1890 || c.year > new Date().getFullYear() + 1)) c.year = null;
+  }
+  return raw;
+}
+
+async function loadCars() {
+  const cached = store.get(CACHE_KEY);
+  if (cached && Date.now() - cached.at < CACHE_DAYS * 864e5 && cached.cars?.length) return cached.cars;
+  const url = "https://query.wikidata.org/sparql?format=json&query=" + encodeURIComponent(QUERY);
+  const res = await fetch(url, { headers: { Accept: "application/sparql-results+json" } });
+  if (!res.ok) throw new Error("The car database answered with error " + res.status);
+  const json = await res.json();
+  const cars = normalize(json.results.bindings);
+  store.set(CACHE_KEY, { at: Date.now(), cars });
+  return cars;
+}
+
+function visibleCars() {
+  const q = state.q.trim().toLowerCase();
+  let list = state.cars.filter((c) =>
+    (state.view === "all" || state.favs.has(c.id)) &&
+    (state.brand === "All" || c.brand === state.brand) &&
+    (!q || c.name.toLowerCase().includes(q) || c.brand.toLowerCase().includes(q))
+  );
+  const byName = (a, b) => a.name.localeCompare(b.name);
+  const sorters = {
+    az: byName,
+    brand: (a, b) => a.brand.localeCompare(b.brand) || byName(a, b),
+    old: (a, b) => (a.year ?? 9999) - (b.year ?? 9999) || byName(a, b),
+    new: (a, b) => (b.year ?? -1) - (a.year ?? -1) || byName(a, b),
+  };
+  return list.sort(sorters[state.sort]);
+}
+
+function renderChips() {
+  const pool = state.view === "all" ? state.cars : state.cars.filter((c) => state.favs.has(c.id));
+  const counts = new Map();
+  for (const c of pool) counts.set(c.brand, (counts.get(c.brand) || 0) + 1);
+  const brands = [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  if (state.brand !== "All" && !counts.has(state.brand)) state.brand = "All";
+  $("chips").innerHTML =
+    `<button class="chip" data-brand="All" aria-pressed="${state.brand === "All"}">All brands<small>${pool.length}</small></button>` +
+    brands.map(([b, n]) =>
+      `<button class="chip" data-brand="${esc(b)}" aria-pressed="${state.brand === b}">${esc(b)}<small>${n}</small></button>`
+    ).join("");
+}
+
+function cardHTML(c) {
+  const fav = state.favs.has(c.id);
+  return `<button class="card" data-id="${c.id}" aria-label="${esc(c.name)}">
+    <div class="photo">
+      <img loading="lazy" src="${esc(thumb(c.img, 480))}" alt="" onerror="this.remove()">
+      <div class="none" aria-hidden="true">No photo</div>
+      ${fav ? `<span class="fav-badge" aria-label="In your garage">★</span>` : ""}
+    </div>
+    <div class="meta">
+      <div class="name">${esc(c.name)}</div>
+      <div class="sub"><span>${esc(c.brand)}</span>${c.year ? `<span class="plate">${c.year}</span>` : ""}</div>
+    </div>
+  </button>`;
+}
+
+function render() {
+  renderChips();
+  const list = visibleCars();
+  const brandCount = new Set(state.cars.map((c) => c.brand)).size;
+  $("count").textContent = state.view === "all"
+    ? `${list.length} of ${state.cars.length} sports cars · ${brandCount} brands`
+    : `${list.length} ${list.length === 1 ? "car" : "cars"} in your garage`;
+
+  const main = $("main");
+  if (!list.length) {
+    main.innerHTML = state.view === "garage" && state.favs.size === 0
+      ? `<div class="status"><strong>Your garage is empty</strong><span>Open any car and tap “Add to my garage” to park it here.</span><button id="go-all">Browse all cars</button></div>`
+      : `<div class="status"><strong>No cars match</strong><span>Try a different search or brand.</span></div>`;
+    $("go-all")?.addEventListener("click", () => setView("all"));
+    return;
+  }
+  main.innerHTML = `<div class="grid">${list.map(cardHTML).join("")}</div>`;
+}
+
+function setView(view) {
+  state.view = view;
+  $("tab-all").setAttribute("aria-selected", view === "all");
+  $("tab-garage").setAttribute("aria-selected", view === "garage");
+  render();
+}
+
+function toggleFav(id) {
+  state.favs.has(id) ? state.favs.delete(id) : state.favs.add(id);
+  store.set(FAV_KEY, [...state.favs]);
+}
+
+async function openCar(id) {
+  const c = state.cars.find((x) => x.id === id);
+  if (!c) return;
+  const d = $("dialog");
+  const favLabel = () => state.favs.has(c.id) ? "★ In my garage" : "☆ Add to my garage";
+  const specs = [
+    ["Brand", c.brand],
+    c.year && ["Year", c.year],
+    c.country && ["Country", c.country],
+  ].filter(Boolean);
+
+  d.innerHTML = `<div class="sheet">
+    <div class="photo" style="position:relative">
+      <img src="${esc(thumb(c.img, 1200))}" alt="${esc(c.name)}" onerror="this.remove()">
+      <div class="none" aria-hidden="true">No photo</div>
+      <button class="close" id="d-close" aria-label="Close">×</button>
+    </div>
+    <div class="sheet-body">
+      <h2 id="d-name">${esc(c.name)}</h2>
+      <dl class="specs">${specs.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
+      <p class="summary loading" id="d-summary">${c.wiki ? "Loading the story of this car…" : "No Wikipedia article for this car yet."}</p>
+      <div class="actions">
+        <button class="primary" id="d-fav">${favLabel()}</button>
+        ${c.wiki ? `<a class="ghost" href="https://en.wikipedia.org/wiki/${encodeURIComponent(c.wiki)}" target="_blank" rel="noopener">Read more on Wikipedia</a>` : ""}
+      </div>
+      <div class="credit">Photo: <a href="${esc(commonsPage(c.img))}" target="_blank" rel="noopener">Wikimedia Commons</a> (see page for photographer and license)</div>
+    </div>
+  </div>`;
+  d.showModal();
+  $("d-close").addEventListener("click", () => d.close());
+  $("d-fav").addEventListener("click", (e) => {
+    toggleFav(c.id);
+    e.currentTarget.textContent = favLabel();
+    render();
+  });
+
+  if (c.wiki) {
+    const el = $("d-summary");
+    try {
+      const res = await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(c.wiki));
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      if (d.open && el.isConnected) {
+        el.textContent = data.extract || "No summary available.";
+        el.classList.remove("loading");
+      }
+    } catch {
+      if (el.isConnected) el.textContent = "Couldn't load the summary. Check your internet connection.";
+    }
+  }
+}
+
+function showLoading() {
+  $("main").innerHTML = `<div class="grid">${Array.from({ length: 12 }, () =>
+    `<div class="skeleton"><div class="photo"></div><div class="meta"><div style="width:70%"></div><div style="width:40%"></div></div></div>`
+  ).join("")}</div>`;
+}
+
+async function start() {
+  showLoading();
+  try {
+    state.cars = await loadCars();
+    render();
+  } catch (err) {
+    $("count").textContent = "Couldn't load cars";
+    $("main").innerHTML = `<div class="status"><strong>Couldn't reach the car database</strong>
+      <span>Check your internet connection, then try again.</span><button id="retry">Try again</button></div>`;
+    $("retry").addEventListener("click", start);
+  }
+}
+
+$("search").addEventListener("input", (e) => { state.q = e.target.value; render(); });
+$("sort").addEventListener("change", (e) => { state.sort = e.target.value; render(); });
+$("tab-all").addEventListener("click", () => setView("all"));
+$("tab-garage").addEventListener("click", () => setView("garage"));
+$("chips").addEventListener("click", (e) => {
+  const chip = e.target.closest(".chip");
+  if (!chip) return;
+  state.brand = chip.dataset.brand;
+  render();
+});
+$("main").addEventListener("click", (e) => {
+  const card = e.target.closest(".card");
+  if (card) openCar(card.dataset.id);
+});
+$("dialog").addEventListener("click", (e) => { if (e.target === e.currentTarget) e.currentTarget.close(); });
+
+start();
+</script>
+</body>
+</html>

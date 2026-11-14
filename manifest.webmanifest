@@ -1,0 +1,13 @@
+{
+  "name": "Super Car Garage",
+  "short_name": "Super Cars",
+  "description": "Browse hundreds of sports cars and build your dream garage.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#111317",
+  "theme_color": "#111317",
+  "icons": [
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
