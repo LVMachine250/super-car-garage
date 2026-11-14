@@ -82,6 +82,12 @@ h1 span { background: var(--accent); color: var(--on-accent); padding: 0 .18em; 
 .count { font: 500 .78rem var(--mono); color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
 
 .tabs { display: flex; gap: 4px; background: var(--chip); padding: 4px; border-radius: 10px; }
+.top-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.tip {
+  display: inline-flex; align-items: center; gap: 4px; padding: 9px 14px; border-radius: 10px;
+  background: var(--accent); color: var(--on-accent); font-weight: 700; text-decoration: none; white-space: nowrap;
+}
+.tip:hover { filter: brightness(1.05); }
 .tab {
   border: 0; background: transparent; padding: 6px 14px; border-radius: 7px; cursor: pointer;
   font-weight: 600; color: var(--muted);
@@ -192,9 +198,12 @@ footer a { color: inherit; }
   <header>
     <div class="title-row">
       <h1>Super Car <span>Garage</span></h1>
-      <div class="tabs" role="tablist" aria-label="View">
-        <button class="tab" role="tab" id="tab-all" aria-selected="true">All cars</button>
-        <button class="tab" role="tab" id="tab-garage" aria-selected="false">My Garage</button>
+      <div class="top-actions">
+        <div class="tabs" role="tablist" aria-label="View">
+          <button class="tab" role="tab" id="tab-all" aria-selected="true">All cars</button>
+          <button class="tab" role="tab" id="tab-garage" aria-selected="false">My Garage</button>
+        </div>
+        <a class="tip" href="https://revolut.me/z_ss_si76" target="_blank" rel="noopener" aria-label="Leave a tip for Super Car Garage">☕ Tip</a>
       </div>
     </div>
     <div class="controls">
@@ -216,7 +225,8 @@ footer a { color: inherit; }
     Car info from <a href="https://www.wikidata.org" target="_blank" rel="noopener">Wikidata</a> and
     <a href="https://en.wikipedia.org" target="_blank" rel="noopener">Wikipedia</a>.
     Photos from <a href="https://commons.wikimedia.org" target="_blank" rel="noopener">Wikimedia Commons</a> by their many photographers.<br>
-    Not affiliated with or endorsed by any car maker. Made by Car Guy · <a href="privacy.html">Privacy &amp; support</a>
+    Not affiliated with or endorsed by any car maker. Made by Car Guy · <a href="privacy.html">Privacy &amp; support</a><br>
+    Enjoying Super Car Garage? <a href="https://revolut.me/z_ss_si76" target="_blank" rel="noopener">☕ Leave a tip</a>
   </footer>
 </div>
 
@@ -429,6 +439,7 @@ async function openCar(id) {
       <div class="actions">
         <button class="primary" id="d-fav">${favLabel()}</button>
         ${c.wiki ? `<a class="ghost" href="https://en.wikipedia.org/wiki/${encodeURIComponent(c.wiki)}" target="_blank" rel="noopener">Read more on Wikipedia</a>` : ""}
+        <a class="ghost" href="https://revolut.me/z_ss_si76" target="_blank" rel="noopener">☕ Tip the maker</a>
       </div>
       <div class="credit">Photo: <a href="${esc(commonsPage(c.img))}" target="_blank" rel="noopener">Wikimedia Commons</a> (see page for photographer and license)</div>
     </div>

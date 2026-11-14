@@ -15,6 +15,9 @@ Browse hundreds of sports cars, from 1950s classics to today's hypercars, and bu
 2. Tap the **Share** button
 3. Tap **Add to Home Screen**
 
+## Support
+Enjoying Super Car Garage? [☕ Leave a tip](https://revolut.me/z_ss_si76)
+
 ## Where the cars come from
 - Car list and facts: [Wikidata](https://www.wikidata.org) (CC0)
 - Car stories: [Wikipedia](https://en.wikipedia.org) (CC BY-SA 4.0)
