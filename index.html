@@ -415,6 +415,21 @@ function toggleFav(id) {
   store.set(FAV_KEY, [...state.favs]);
 }
 
+// Cars added by hand, on top of the Wikidata list.
+const EXTRA_CARS = [
+  {
+    id: "leighton-vans-lvf",
+    name: "Leighton Vans LVF",
+    brand: "Leighton Vans",
+    img: "https://commons.wikimedia.org/wiki/Special:FilePath/Ford_Transit_Custom_Leighton.jpg",
+    year: null,
+    country: "United Kingdom",
+    wiki: null,
+    summary: "A sporty Ford Transit Custom built by Leighton Vans of Rotherham, England, one of the UK's few van specialists approved by both Ford and Volkswagen. Leighton's Ford Transit Custom kit, the LV-RF, adds uprated suspension, bigger wheels and brakes, and front and rear spoilers, and it can be ordered through Ford dealers. Power comes from Ford's 2.0-litre 170hp EcoBlue diesel, and the van keeps its 1,100kg payload.",
+    website: { url: "https://www.leightonvans.co.uk/", label: "Visit Leighton Vans" },
+  },
+];
+
 async function openCar(id) {
   const c = state.cars.find((x) => x.id === id);
   if (!c) return;
@@ -435,10 +450,11 @@ async function openCar(id) {
     <div class="sheet-body">
       <h2 id="d-name">${esc(c.name)}</h2>
       <dl class="specs">${specs.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
-      <p class="summary loading" id="d-summary">${c.wiki ? "Loading the story of this car…" : "No Wikipedia article for this car yet."}</p>
+      <p class="summary${c.summary ? "" : " loading"}" id="d-summary">${c.summary ? esc(c.summary) : c.wiki ? "Loading the story of this car…" : "No Wikipedia article for this car yet."}</p>
       <div class="actions">
         <button class="primary" id="d-fav">${favLabel()}</button>
         ${c.wiki ? `<a class="ghost" href="https://en.wikipedia.org/wiki/${encodeURIComponent(c.wiki)}" target="_blank" rel="noopener">Read more on Wikipedia</a>` : ""}
+        ${c.website ? `<a class="ghost" href="${esc(c.website.url)}" target="_blank" rel="noopener">${esc(c.website.label)}</a>` : ""}
         <a class="ghost" href="https://revolut.me/z_ss_si76" target="_blank" rel="noopener">☕ Tip the maker</a>
       </div>
       <div class="credit">Photo: <a href="${esc(commonsPage(c.img))}" target="_blank" rel="noopener">Wikimedia Commons</a> (see page for photographer and license)</div>
@@ -452,7 +468,7 @@ async function openCar(id) {
     render();
   });
 
-  if (c.wiki) {
+  if (c.wiki && !c.summary) {
     const el = $("d-summary");
     try {
       const res = await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(c.wiki));
@@ -477,7 +493,8 @@ function showLoading() {
 async function start() {
   showLoading();
   try {
-    state.cars = await loadCars();
+    const loaded = await loadCars();
+    state.cars = [...EXTRA_CARS, ...loaded.filter((c) => !EXTRA_CARS.some((x) => x.id === c.id))];
     render();
   } catch (err) {
     $("count").textContent = "Couldn't load cars";
