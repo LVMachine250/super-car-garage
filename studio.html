@@ -187,6 +187,20 @@ const REAL_MODELS = {
 REAL_MODELS["lamborghini-aventador-svj"] = { file: "models/lamborghini-aventador-svj.glb", title: "Lamborghini Aventador SVJ SDC (FREE)", author: "SDC PERFORMANCE",
   url: "https://sketchfab.com/3d-models/lamborghini-aventador-svj-sdc-free-784e4656aca649cca55d6b18740a19b2",
   paint: /^(CARROSSERIE|Material\.004)$/i, glass: /^GLASS$/i, hide: /GoldenLogo/i, maker: "Automobili Lamborghini", turn: 0 };
+Object.assign(REAL_MODELS, {
+  Q850536: { file: "models/lamborghini-miura.glb", title: "Lamborghini Miura", author: "jpo1703",
+    url: "https://sketchfab.com/3d-models/lamborghini-miura-b66505649b6944bba4e5b4f04d748eb7",
+    paint: /.*/, glass: /^$/, hide: /^$/, maker: "Automobili Lamborghini", turn: 0, note: "This model is one solid piece, like a clay model, so paint colours the whole car." },
+  Q849607: { file: "models/mclaren-f1.glb", title: "1992 McLaren F1", author: "Randomness",
+    url: "https://sketchfab.com/3d-models/1992-mclaren-f1-68f32c686950451b81ca25dd5ac82037",
+    paint: /^$/, glass: /glass/i, hide: /^$/, maker: "McLaren Automotive", turn: 0, note: "This model's colours are painted into its textures, so it keeps its original paint." },
+  Q45304944: { file: "models/mclaren-senna.glb", title: "McLaren Senna Free", author: "Black Snow",
+    url: "https://sketchfab.com/3d-models/mclaren-senna-free-ea3e43a6eb004853a87fe9c58422eb96",
+    paint: /^senna ?paint(main)?$/i, glass: /^senna_glass$/i, hide: /badge/i, maker: "McLaren Automotive", turn: 0 },
+  Q462223: { file: "models/lamborghini-diablo-sv.glb", title: "Lamborghini Diablo SV 1998", author: "Samantha Smith",
+    url: "https://sketchfab.com/3d-models/lamborghini-diablo-sv-1998-ebbd0d5fab0f4d088a8af10b4b94ac54",
+    paint: /^bodyshell(_2)?$/i, glass: /^window/i, hide: /^$/, maker: "Automobili Lamborghini", turn: 0, stripPaintTexture: true },
+});
 const REAL = REAL_MODELS[car.id] || null;
 
 // ================= Body designs (all original, built from curves) =================
@@ -383,7 +397,7 @@ function loadReal() {
       if (mats.some((m) => REAL.hide.test(m.name || ""))) { o.visible = false; return; }
       o.material = (Array.isArray(o.material) ? mats : [mats[0]]).map((m) => {
         const c = m.clone();
-        if (REAL.paint.test(m.name || "")) realPaint.push(c);
+        if (REAL.paint.test(m.name || "")) { if (REAL.stripPaintTexture) c.map = null; realPaint.push(c); }
         if (REAL.glass.test(m.name || "")) { c.transparent = true; realGlass.push(c); }
         return c;
       });
@@ -1027,7 +1041,7 @@ const GLOWS = [["Off", "off"], ["Yellow", "#f5be0b"], ["Blue", "#2f7bff"], ["Gre
 const sections = [
   ...(REAL ? [["Model", [
     { type: "seg", key: "model", label: "3D model", options: [["Real 3D model", "real"], ["Build Studio shape", "shape"]] },
-    { type: "note", text: "The real model is detailed but only takes paint, finish, ride height, window tint and underglow. Wheels, body kit, livery and your number plate work on the Build Studio shape." },
+    { type: "note", text: (REAL && REAL.note ? REAL.note + " " : "") + "The real model takes paint, finish, ride height, window tint and underglow. Wheels, body kit, livery and your number plate work on the Build Studio shape." },
   ]]] : []),
   ["Paint", [
     { type: "swatch", key: "paint", label: "Colour", options: PAINTS, custom: true },
