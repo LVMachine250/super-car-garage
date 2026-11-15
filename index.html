@@ -153,6 +153,7 @@ h1 span { background: var(--accent); color: var(--on-accent); padding: 0 .18em; 
 
 .status { text-align: center; color: var(--muted); padding: 60px 0; display: grid; gap: 12px; justify-items: center; }
 .status button, .primary {
+  text-decoration: none; display: inline-flex; align-items: center;
   border: 0; background: var(--accent); color: var(--on-accent); font-weight: 600;
   padding: 10px 18px; border-radius: 10px; cursor: pointer;
 }
@@ -479,6 +480,12 @@ const EXTRA_CARS = [
   },
 ];
 
+function studioLink(c) {
+  const q = new URLSearchParams({ id: c.id, name: c.name, brand: c.brand || "" });
+  if (c.year) q.set("year", c.year);
+  return "studio.html?" + q.toString();
+}
+
 async function openCar(id) {
   const c = state.cars.find((x) => x.id === id);
   if (!c) return;
@@ -502,6 +509,7 @@ async function openCar(id) {
       <p class="summary${c.summary ? "" : " loading"}" id="d-summary">${c.summary ? esc(c.summary) : c.wiki ? "Loading the story of this car…" : "No Wikipedia article for this car yet."}</p>
       <div class="actions">
         <button class="primary" id="d-fav">${favLabel()}</button>
+        <a class="primary" href="${studioLink(c)}">🔧 Customise in 3D</a>
         ${c.wiki ? `<a class="ghost" href="https://en.wikipedia.org/wiki/${encodeURIComponent(c.wiki)}" target="_blank" rel="noopener">Read more on Wikipedia</a>` : ""}
         ${c.website ? `<a class="ghost" href="${esc(c.website.url)}" target="_blank" rel="noopener">${esc(c.website.label)}</a>` : ""}
         <a class="ghost" href="https://revolut.me/z_ss_si76" target="_blank" rel="noopener">☕ Tip the maker</a>
