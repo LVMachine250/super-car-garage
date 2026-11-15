@@ -23,6 +23,11 @@ Enjoying Super Car Garage? [☕ Leave a tip](https://revolut.me/z_ss_si76)
 - Car stories: [Wikipedia](https://en.wikipedia.org) (CC BY-SA 4.0)
 - Photos: [Wikimedia Commons](https://commons.wikimedia.org), credited to each photographer on every car's page
 
+### 3D models
+The Build Studio draws its own original 3D cars. Two cars also have a real 3D model, shared under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) (car-maker badges removed):
+- [“FREE 1975 Porsche 911 (930) Turbo”](https://sketchfab.com/3d-models/free-1975-porsche-911-930-turbo-8568d9d14a994b9cae59499f0dbed21e) by Lionsharp Studios. Vehicle design © Porsche AG.
+- [“Ferrari f40”](https://sketchfab.com/3d-models/ferrari-f40-52a66c41cfcd4f999fb1b1c49bf24d70) by Black Snow. Vehicle design © Ferrari S.p.A.
+
 Car names and brands belong to their owners. Super Car Garage is not affiliated with or endorsed by any car maker.
 
 Made by Car Guy · [Privacy & support](privacy.html)

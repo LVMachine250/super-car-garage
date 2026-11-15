@@ -62,6 +62,11 @@ header {
   font-weight: 700; font-size: .8rem; padding: 5px 10px; border-radius: 8px; opacity: 0; transition: opacity .3s;
 }
 .toast.on { opacity: 1; }
+.credit {
+  position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); bottom: 44px;
+  font-size: .72rem; color: var(--muted); text-align: center; pointer-events: auto;
+}
+.credit a { color: var(--ink); }
 .error { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 24px; color: var(--muted); }
 
 .panel {
@@ -131,6 +136,7 @@ header {
   <div class="stage" id="stage">
     <div class="badge-type" id="type-badge">3D</div>
     <div class="toast" id="toast">Saved ✓</div>
+    <div class="credit" id="credit" hidden></div>
     <div class="hint" id="hint">Drag to spin · pinch or scroll to zoom</div>
   </div>
   <div class="panel">
@@ -144,6 +150,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 // ================= Which car =================
 const qs = new URLSearchParams(location.search);
@@ -166,6 +173,18 @@ function bodyTypeFor({ name, brand, year }) {
   return "coupe";
 }
 const typeKey = qs.get("type") || bodyTypeFor(car);
+
+// Real 3D models made by other people and shared under CC Attribution (credited on screen).
+// Car-maker badges and stickers are hidden.
+const REAL_MODELS = {
+  Q219357: { file: "models/porsche-911-930-turbo.glb", title: "FREE 1975 Porsche 911 (930) Turbo", author: "Lionsharp Studios",
+    url: "https://sketchfab.com/3d-models/free-1975-porsche-911-930-turbo-8568d9d14a994b9cae59499f0dbed21e",
+    paint: /^paint$/i, glass: /^glass$/i, hide: /stickers|wunderbaum/i, maker: "Porsche AG", turn: 0 },
+  Q463627: { file: "models/ferrari-f40.glb", title: "Ferrari f40", author: "Black Snow",
+    url: "https://sketchfab.com/3d-models/ferrari-f40-52a66c41cfcd4f999fb1b1c49bf24d70",
+    paint: /^material$/i, glass: /^F40_(glass|window)$/i, hide: /logos/i, maker: "Ferrari S.p.A.", turn: 0 },
+};
+const REAL = REAL_MODELS[car.id] || null;
 
 // ================= Body designs (all original, built from curves) =================
 // x runs from the rear (-) to the nose (+). Heights in metres. w = half width.
@@ -262,6 +281,7 @@ const DEFAULTS = {
   livery: "none", stripeColor: "#f2f2f0", raceNo: "7",
   tint: 45, headlight: "#fff3d6", tailStyle: "twin", glow: "off",
   plate: "CAR GUY",
+  model: REAL ? "real" : "shape",
 };
 const STORE_KEY = "supercar-garage.builds.v1";
 function loadAll() { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { return {}; } }
@@ -341,6 +361,60 @@ ring.rotation.x = -Math.PI / 2; ring.position.y = 0.004; scene.add(ring);
 
 const carRoot = new THREE.Group();
 scene.add(carRoot);
+const realRoot = new THREE.Group();
+realRoot.visible = false;
+scene.add(realRoot);
+let realScene = null, realState = "idle"; // idle | loading | ready | failed
+const realPaint = [], realGlass = [];
+
+function loadReal() {
+  if (!REAL || realState !== "idle") return;
+  realState = "loading";
+  document.getElementById("type-badge").textContent = "Loading the real 3D model…";
+  new GLTFLoader().load(REAL.file, (gltf) => {
+    const s = gltf.scene;
+    s.traverse((o) => {
+      if (!o.isMesh) return;
+      o.castShadow = true; o.receiveShadow = true;
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      if (mats.some((m) => REAL.hide.test(m.name || ""))) { o.visible = false; return; }
+      o.material = (Array.isArray(o.material) ? mats : [mats[0]]).map((m) => {
+        const c = m.clone();
+        if (REAL.paint.test(m.name || "")) realPaint.push(c);
+        if (REAL.glass.test(m.name || "")) { c.transparent = true; realGlass.push(c); }
+        return c;
+      });
+      if (!Array.isArray(gltf.scene) && o.material.length === 1) o.material = o.material[0];
+    });
+    // Line the car up: length along x, sitting on the floor, centred, about 4.4 m long.
+    let box = new THREE.Box3().setFromObject(s), size = box.getSize(new THREE.Vector3());
+    if (size.z > size.x) s.rotation.y = Math.PI / 2;
+    s.rotation.y += REAL.turn;
+    box = new THREE.Box3().setFromObject(s); size = box.getSize(new THREE.Vector3());
+    s.scale.multiplyScalar(4.4 / Math.max(size.x, size.z));
+    box = new THREE.Box3().setFromObject(s);
+    const c = box.getCenter(new THREE.Vector3());
+    s.position.x -= c.x; s.position.z -= c.z; s.position.y -= box.min.y;
+    realRoot.add(s); realScene = s; realState = "ready";
+    build();
+  }, undefined, () => {
+    realState = "failed";
+    document.getElementById("type-badge").textContent = "Couldn't load the real model. Showing the Build Studio shape.";
+    build();
+  });
+}
+function applyReal() {
+  for (const m of realPaint) {
+    m.color = new THREE.Color(state.paint);
+    if ("clearcoat" in m) m.clearcoat = state.finish === "matte" ? 0 : 1;
+    m.roughness = state.finish === "matte" ? 0.7 : state.finish === "metallic" ? 0.3 : 0.2;
+    m.metalness = state.finish === "metallic" ? 0.75 : state.finish === "matte" ? 0.05 : 0.15;
+    m.needsUpdate = true;
+  }
+  const t = state.tint / 100;
+  for (const m of realGlass) { m.color = new THREE.Color("#8aa4ba").lerp(new THREE.Color("#040506"), t); m.opacity = 0.35 + 0.6 * t; m.needsUpdate = true; }
+  realRoot.position.y = state.ride / 100;
+}
 
 // ================= Maths helpers =================
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
@@ -530,8 +604,41 @@ function buildWheel(rimMat, M) {
 // ================= Build the whole car =================
 function disposeTree(o) { o.traverse((c) => { c.geometry?.dispose(); const ms = Array.isArray(c.material) ? c.material : [c.material]; ms.forEach((m) => { if (!m) return; m.map?.dispose(); m.dispose(); }); }); }
 
+function addUnderglow(len, wid) {
+  if (state.glow === "off") return;
+  const col = new THREE.Color(state.glow);
+  const tex = canvasTex(256, 256, (g, w, h) => {
+    const gr = g.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, w / 2);
+    gr.addColorStop(0, `#${col.getHexString()}`); gr.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  });
+  add(carRoot, new THREE.PlaneGeometry(len, wid), new THREE.MeshBasicMaterial({ map: tex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }), { rx: -Math.PI / 2, y: 0.008, shadow: false });
+  const pl = new THREE.PointLight(col, 4, 4.5, 1.5); pl.position.set(0, 0.12, 0); carRoot.add(pl);
+}
+
+function updateLabels(useReal) {
+  const credit = document.getElementById("credit"), badge = document.getElementById("type-badge");
+  if (useReal) {
+    credit.hidden = false;
+    credit.innerHTML = `3D model: <a href="${REAL.url}" target="_blank" rel="noopener">“${REAL.title}”</a> by ${REAL.author}, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>. Car design belongs to ${REAL.maker}; badges removed.`;
+    if (realState === "ready") badge.textContent = `Real 3D model by ${REAL.author}`;
+  } else {
+    credit.hidden = true;
+    if (realState !== "loading") badge.textContent = `3D shape: ${T.label}`;
+  }
+}
+
 function build() {
   disposeTree(carRoot); carRoot.clear();
+  const useReal = !!REAL && state.model === "real" && realState !== "failed";
+  updateLabels(useReal);
+  realRoot.visible = useReal && realState === "ready";
+  if (useReal) {
+    if (realState !== "ready") { loadReal(); return; }
+    applyReal();
+    addUnderglow(5.4, 3.8);
+    controls.target.y = 0.6;
+    return;
+  }
   const paint = paintMaterial();
   const M = {
     trim: new THREE.MeshStandardMaterial({ color: 0x141619, roughness: 0.55, metalness: 0.3 }),
@@ -915,6 +1022,10 @@ const HEADS = [["Warm white", "#fff3d6"], ["Ice blue", "#cfe6ff"], ["Yellow", "#
 const GLOWS = [["Off", "off"], ["Yellow", "#f5be0b"], ["Blue", "#2f7bff"], ["Green", "#2bff88"], ["Purple", "#9b4dff"], ["Red", "#ff2b3a"]];
 
 const sections = [
+  ...(REAL ? [["Model", [
+    { type: "seg", key: "model", label: "3D model", options: [["Real 3D model", "real"], ["Build Studio shape", "shape"]] },
+    { type: "note", text: "The real model is detailed but only takes paint, finish, ride height, window tint and underglow. Wheels, body kit, livery and your number plate work on the Build Studio shape." },
+  ]]] : []),
   ["Paint", [
     { type: "swatch", key: "paint", label: "Colour", options: PAINTS, custom: true },
     { type: "seg", key: "finish", label: "Finish", options: [["Gloss", "gloss"], ["Metallic", "metallic"], ["Matte", "matte"]] },
