@@ -184,6 +184,9 @@ const REAL_MODELS = {
     url: "https://sketchfab.com/3d-models/ferrari-f40-52a66c41cfcd4f999fb1b1c49bf24d70",
     paint: /^material$/i, glass: /^F40_(glass|window)$/i, hide: /logos/i, maker: "Ferrari S.p.A.", turn: 0 },
 };
+REAL_MODELS["lamborghini-aventador-svj"] = { file: "models/lamborghini-aventador-svj.glb", title: "Lamborghini Aventador SVJ SDC (FREE)", author: "SDC PERFORMANCE",
+  url: "https://sketchfab.com/3d-models/lamborghini-aventador-svj-sdc-free-784e4656aca649cca55d6b18740a19b2",
+  paint: /^(CARROSSERIE|Material\.004)$/i, glass: /^GLASS$/i, hide: /GoldenLogo/i, maker: "Automobili Lamborghini", turn: 0 };
 const REAL = REAL_MODELS[car.id] || null;
 
 // ================= Body designs (all original, built from curves) =================
