@@ -32,6 +32,9 @@ The Build Studio draws its own original 3D cars. Some cars also have a real 3D m
 - [“1992 McLaren F1”](https://sketchfab.com/3d-models/1992-mclaren-f1-68f32c686950451b81ca25dd5ac82037) by Randomness. Vehicle design © McLaren Automotive.
 - [“McLaren Senna Free”](https://sketchfab.com/3d-models/mclaren-senna-free-ea3e43a6eb004853a87fe9c58422eb96) by Black Snow. Vehicle design © McLaren Automotive.
 - [“Lamborghini Diablo SV 1998”](https://sketchfab.com/3d-models/lamborghini-diablo-sv-1998-ebbd0d5fab0f4d088a8af10b4b94ac54) by Samantha Smith. Vehicle design © Automobili Lamborghini.
+- [“Lamborghini Countach 5000QV”](https://sketchfab.com/3d-models/lamborghini-countach-5000qv-2f02b54e01fc428e8b19759c5970f882) by Randomness. Vehicle design © Automobili Lamborghini.
+- [“Lamborghini Reventon”](https://sketchfab.com/3d-models/lamborghini-reventon-30615ac5360e4aad9f31726360b91dc5) by Blue3D. Vehicle design © Automobili Lamborghini.
+- [“1984 Ferrari 288 GTO”](https://sketchfab.com/3d-models/1984-ferrari-288-gto-770fd539a4cd40e1a38475881a5fa5d8) by Res1n. Vehicle design © Ferrari S.p.A.
 
 Car names and brands belong to their owners. Super Car Garage is not affiliated with or endorsed by any car maker.
 

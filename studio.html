@@ -201,6 +201,17 @@ Object.assign(REAL_MODELS, {
     url: "https://sketchfab.com/3d-models/lamborghini-diablo-sv-1998-ebbd0d5fab0f4d088a8af10b4b94ac54",
     paint: /^bodyshell(_2)?$/i, glass: /^window/i, hide: /^$/, maker: "Automobili Lamborghini", turn: 0, stripPaintTexture: true },
 });
+Object.assign(REAL_MODELS, {
+  Q863812: { file: "models/lamborghini-countach-5000qv.glb", title: "Lamborghini Countach 5000QV", author: "Randomness",
+    url: "https://sketchfab.com/3d-models/lamborghini-countach-5000qv-2f02b54e01fc428e8b19759c5970f882",
+    paint: /^$/, glass: /^$/, hide: /^$/, maker: "Automobili Lamborghini", turn: 0, note: "This model's colours are painted into its textures, so it keeps its original paint." },
+  Q842432: { file: "models/lamborghini-reventon.glb", title: "Lamborghini Reventon", author: "Blue3D",
+    url: "https://sketchfab.com/3d-models/lamborghini-reventon-30615ac5360e4aad9f31726360b91dc5",
+    paint: /^PAINT$/, glass: /^(glass|black_glass)$/i, hide: /^$/, maker: "Automobili Lamborghini", turn: 0 },
+  Q176152: { file: "models/ferrari-288-gto.glb", title: "1984 Ferrari 288 GTO", author: "Res1n",
+    url: "https://sketchfab.com/3d-models/1984-ferrari-288-gto-770fd539a4cd40e1a38475881a5fa5d8",
+    paint: /^carpaint$/i, glass: /^windowglass$/i, hide: /^yellow$/i, maker: "Ferrari S.p.A.", turn: 0 },
+});
 const REAL = REAL_MODELS[car.id] || null;
 
 // ================= Body designs (all original, built from curves) =================
